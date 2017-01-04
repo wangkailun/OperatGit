@@ -61,40 +61,14 @@ class MyWidget(QMainWindow):
 				
 		else:
 		
-			host = Linux("123.206.191.48" , name , password)
+			host = Linux("120.26.103.174" , name , password)
 			host.connect()
-			host.send("ls -l")
+			host.send()
 			host.close()
 		
-		'''
-			t = paramiko.Transport(("123.206.191.48",22))
-			t.connect(username = name , password = password)
-			
-			chan = t.open_session()
-			chan.settimeout(30)
-			chan.get_pty()
-			chan.invoke_shell()
-			
-			cmd = "ls -a \r"
-			p = re.compile(r":~ #")
-			
-			result = ""
-			chan.send(cmd)
-			
-			while True:
-				time.sleep(0.5)
-				ret = chan.recv(65535)
-				ret = ret.decode("utf-8")
-				result += ret
-				if p.search(ret):
-					print(result)
-					break
-					
-					
-		'''
 		
 class Linux(object):
-	def __init__(self , ip , username , password , timeout = 30):
+	def __init__(self , ip , username , password , timeout = 50):
 		self.ip = ip
 		self.username = username
 		self.password = password
@@ -115,17 +89,18 @@ class Linux(object):
 				self.chan.get_pty()
 				self.chan.invoke_shell()
 				
-				print("连接%s成功"%self.ip)
+				print(u"连接%s成功"%self.ip)
+				print(self.chan.recv(65535).decode("utf-8"))
 				
 				return
 				
 			except Exception as e:
 				if self.try_times != 0:
-					print("连接失败，重新连接")
+					print(u"连接失败，重新连接")
 					self.try_times -= 1
 					
 				else:
-					print("重试三次失败，结束程序!")
+					print(u"重试三次失败，结束程序!")
 					exit(1)
 					
 					
@@ -134,32 +109,87 @@ class Linux(object):
 		self.t.close()
 		
 		
-	def send(self , cmd):
-		cmd += "\r"
+	def send(self):
+		cmd1 = "cd /tmp\r"
+		cmd2 = "ls \r"
+		cmd3 = "git clone /home/git/family.git\r"
+		cmd4 = "cd family\r"
+		cmd5 = "git pull origin master\r"
+		cmd6 =  "cd homepage/test\r"
+		cmd7 = "sudo rm -rf example.tar\r"
+		cmd8 = "tar -cvf example.tar *\r"
+		cmd9 = "cd /usr/lunlun/tmp\r"
+		cmd10 = "sudo rm -rf *\r"
+		cmd11 = "sudo tar -xvf /tmp/family/homepage/test/example.tar\r"
 		
-		p = re.complie(r":~ #")
+		cmd12 = self.password + "\r"
 		
-		result = ""
-		self.chan.send(cmd)
-		while True:
-			time.sleep(0.5)
-			ret = self.chan.recv(65535)
-			ret = ret.decode("utf-8")
-			result += ret
-			if p.search(ret):
-				print(result)
-				
-				return result
+		self.chan.send(cmd1)
+		time.sleep(0.5)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		
+		self.chan.send(cmd2)
+		time.sleep(0.5)
+		result = self.chan.recv(65535).decode("utf-8")
+		
+		a = re.findall(r"family" , result)
+		
+		if a == '':
+			self.chan.send(cmd3)
+			time.sleep(20)
+			print(self.chan.recv(65535).decode("utf-8"))
+			
+			self.chan.send(cmd4)
+			time.sleep(3)
+			print(self.chan.recv(65535).decode("utf-8"))
+			
+		else:
+			self.chan.send(cmd4)
+			time.sleep(3)
+			print(self.chan.recv(65535).decode("utf-8"))
+			
+		
+		
+		self.chan.send(cmd5)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		self.chan.send(cmd6)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		self.chan.send(cmd7)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		
+		self.chan.send(cmd12)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		
+		
+		self.chan.send(cmd8)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		self.chan.send(cmd9)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		self.chan.send(cmd10)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		self.chan.send(cmd11)
+		time.sleep(3)
+		print(self.chan.recv(65535).decode("utf-8"))
+		
+		
 				
 					
 			
-	
-			
-			
-			
-				
-				
-		
 			
 		
 if __name__ == "__main__":
