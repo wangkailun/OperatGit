@@ -3,6 +3,7 @@ from qtpy.QtWidgets import *
 import sys
 import re
 import time
+import os
 
 import paramiko
 
@@ -20,9 +21,27 @@ class MyWidget(QMainWindow):
 	def initUI(self):
 		self.username = QLabel("用户名:")
 		self.passwd = QLabel("密码:")
+		self.gitaddress = QLabel("git地址:")
+		
+		self.dir1 = sys.argv[0]
+		self.dir1 = os.path.dirname(self.dir1)
+		self.dir1 = self.dir1 + r"\password.txt"
+
+
+		f = open(self.dir1 , "r")
+		git = f.readline()
+		username = f.readline()
+		password = f.readline()
+		f.close()
+		
 		
 		self.usernameEdit = QLineEdit()
 		self.passwdEdit = QLineEdit()
+		self.gitaddressEdit = QLineEdit()
+
+		self.gitaddressEdit.setText(git)
+		self.usernameEdit.setText(username)
+		self.passwdEdit.setText(password)
 		
 		self.clearbutton = QPushButton("清除")
 		self.linkbutton = QPushButton("确定")
@@ -30,13 +49,15 @@ class MyWidget(QMainWindow):
 		self.readpassword = QCheckBox("记住密码")
 		
 		grid = QGridLayout()
-		grid.addWidget(self.username , 0 , 1)
-		grid.addWidget(self.usernameEdit , 0 , 2)
-		grid.addWidget(self.passwd , 1 , 1)
-		grid.addWidget(self.passwdEdit , 1 , 2)
-		grid.addWidget(self.readpassword , 2 , 1)
-		grid.addWidget(self.clearbutton , 3 , 2)
-		grid.addWidget(self.linkbutton , 3 , 3)
+		grid.addWidget(self.gitaddress , 0 , 1)
+		grid.addWidget(self.gitaddressEdit , 0 , 2)
+		grid.addWidget(self.username , 1 , 1)
+		grid.addWidget(self.usernameEdit , 1 , 2)
+		grid.addWidget(self.passwd , 2 , 1)
+		grid.addWidget(self.passwdEdit , 2 , 2)
+		grid.addWidget(self.readpassword , 3 , 1)
+		grid.addWidget(self.clearbutton , 4 , 2)
+		grid.addWidget(self.linkbutton , 4 , 3)
 		
 		self.wget1.setLayout(grid)
 		
@@ -49,20 +70,24 @@ class MyWidget(QMainWindow):
 		
 		
 	def ClearEndit(self):
+		self.gitaddressEdit.clear()
 		self.usernameEdit.clear()
 		self.passwdEdit.clear()
 		
 	def ConnectGit(self):
+		git = self.gitaddressEdit.text()
 		name = self.usernameEdit.text()
 		password = self.passwdEdit.text()
-		if name == "" or password == "":
+		if name == "" or password == "" or git == "":
 			if name == "":
-				self.usernameEdit.setToolTip("用户名不能为空!^^")
-				print(password)
+				print("用户名不能为空")
 				
+			elif password == '':
+				print("密码不能为空")
+
 			else:
-				self.passwdEdit.setToolTip("密码不能为空！^^")
-				print(name)
+				print("git地址不能为空")
+
 				
 				
 		else:
@@ -77,10 +102,13 @@ class MyWidget(QMainWindow):
 
 	def RememberPassword(self , state):
 		if state == Qt.Checked:
-			pass
+			self.ClearEndit()
 		else:
-			f = open(r"../password.txt","w")
-			f.writelines([self.usernameEdit.text() , self.passwdEdit.text()])
+			dir1 = sys.argv[0]
+			dir1 = os.path.dirname(dir1)
+			dir1 = dir1 + r"\password.txt"
+			f = open(dir1 , "w")
+			f.writelines([self.gitaddressEdit.text()+"\n",self.usernameEdit.text()+"\n" , self.passwdEdit.text()+"\n"])
 			f.close()
 
 		
@@ -209,15 +237,6 @@ class Linux(object):
 		print("更新完成！")
 
 
-
-
-	
-		
-		
-				
-					
-			
-			
 		
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
