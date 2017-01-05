@@ -27,18 +27,25 @@ class MyWidget(QMainWindow):
 		self.clearbutton = QPushButton("清除")
 		self.linkbutton = QPushButton("确定")
 		
+		self.readpassword = QCheckBox("记住密码")
+		
 		grid = QGridLayout()
 		grid.addWidget(self.username , 0 , 1)
 		grid.addWidget(self.usernameEdit , 0 , 2)
 		grid.addWidget(self.passwd , 1 , 1)
 		grid.addWidget(self.passwdEdit , 1 , 2)
-		grid.addWidget(self.clearbutton , 2 , 2)
-		grid.addWidget(self.linkbutton , 2 , 3)
+		grid.addWidget(self.readpassword , 2 , 1)
+		grid.addWidget(self.clearbutton , 3 , 2)
+		grid.addWidget(self.linkbutton , 3 , 3)
 		
 		self.wget1.setLayout(grid)
 		
 		self.clearbutton.clicked.connect(self.ClearEndit)
 		self.linkbutton.clicked.connect(self.ConnectGit)
+		
+		self.readpassword.toggle()
+
+
 		
 		
 	def ClearEndit(self):
@@ -46,7 +53,6 @@ class MyWidget(QMainWindow):
 		self.passwdEdit.clear()
 		
 	def ConnectGit(self):
-		QToolTip.setFont(QFont("QSansSerif" , 10))
 		name = self.usernameEdit.text()
 		password = self.passwdEdit.text()
 		if name == "" or password == "":
@@ -60,11 +66,23 @@ class MyWidget(QMainWindow):
 				
 				
 		else:
+			self.readpassword.stateChanged.connect(self.RememberPassword)
 		
 			host = Linux("120.26.103.174" , name , password)
 			host.connect()
 			host.send()
 			host.close()
+
+
+
+	def RememberPassword(self , state):
+		if state == Qt.Checked:
+			pass
+		else:
+			f = open(r"../password.txt","w")
+			f.writelines([self.usernameEdit.text() , self.passwdEdit.text()])
+			f.close()
+
 		
 		
 class Linux(object):
@@ -179,12 +197,21 @@ class Linux(object):
 		print(self.chan.recv(65535).decode("utf-8"))
 		
 		self.chan.send(cmd10)
-		time.sleep(3)
+		time.sleep(5)
 		print(self.chan.recv(65535).decode("utf-8"))
 		
 		self.chan.send(cmd11)
 		time.sleep(3)
 		print(self.chan.recv(65535).decode("utf-8"))
+
+
+
+		print("更新完成！")
+
+
+
+
+	
 		
 		
 				
